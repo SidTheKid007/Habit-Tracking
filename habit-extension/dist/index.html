@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body class="container">
+    <form class="form-data" autocomplete="on">
+      <div class="widget-title">
+        Habit Tracker
+      </div>
+      <div>
+        <input type="text" class="activity-name" placeholder="Activity"/>
+        <input type="text" class="start-time" placeholder="Start Time"/>
+        <input type="text" class="time-amount" placeholder="Duration (minutes)"/>
+        <select class="category-name">
+          <option value="Piano">Piano</option>
+          <option value="Basketball">Basketball</option>
+          <option value="Coding">Coding</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <button class="search-btn">Submit</button>
+    </form>
+    <div class="result">
+      <div class="loading">loading...</div>
+      <div class="errors"></div>
+      <div class="data"></div>
+      <div class="result-container">
+        <p><strong>Result: </strong><span class="api-status"></span></p>
+      </div>
+    </div>
+
+    <script src="main.js"></script>
+  </body>
+</html>

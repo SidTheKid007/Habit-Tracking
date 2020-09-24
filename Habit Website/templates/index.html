@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
+<script src="{{ url_for('static', filename='js/jquery-3.5.1.min.js') }}"></script>
+
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Habits</title>
+    <style> 
+    	body { 
+    		background-color: #F5F5F5; 
+    	} 
+    	h1 { 
+    		text-align: center; 
+    		color: black; 
+    	}
+    	h2 {
+    		text-align:left; 
+    		text-decoration: underline;
+    		color:black;
+    	}
+        h3 {
+            text-align:left;
+            color:black;
+        }
+        button {
+            width: 10.5%;
+            float: right;
+            cursor: pointer;
+    		margin-top: 1rem;
+    		margin-right: 2.5%;
+    		margin-bottom: 20px;
+        }
+    	table.dataframe, .dataframe th, .dataframe td {
+            border-collapse: collapse;
+            text-align: left;
+            padding: 10px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            margin-left:auto;
+            margin-right:auto;
+        }
+        select {
+            float: right;
+            width: 8.5%;
+            margin-right: 2.5%;
+            font-size: 0.9em;
+        }
+        .forcespace2 {
+            float: left;
+            padding-left: 4%;
+            padding-right: 0%;
+        }
+        .midchart {
+            float: left;
+            width: 88%;
+        }
+        .trucktable {
+            width: 88%;
+        }
+	</style> 
+</head>
+<body>
+<div class="container">
+    <div class="row">
+    	<div class="col-md-6">
+    		<h1> {{name | safe}} </h1>
+            <select class="form-control" id='Truckchoice'>
+                <option value="all trucks">Everything</option>
+                <option value="Piano">Piano</option>
+                <option value="Basketball">Basketball</option>
+                <option value="Coding">Coding</option>
+                <option value="Other">Other</option>
+            </select>
+            <div class="midchart" id="pieChart">
+                <script>
+                    var graph = {{pieviz | safe}};
+                    var barlayout = {
+                      title: "Summary", 
+                      plot_bgcolor:"#F5F5F5",
+                      paper_bgcolor:"#F5F5F5"
+                    };
+                    Plotly.plot('pieChart',graph,barlayout);
+                </script>
+            </div>
+            <button>Export to CSV</button>
+            <div class="container">
+                
+                <div id="Transactionhist">
+                    {{ trucktable|safe }}
+                </div>
+            </div>
+		</div>
+    </div>
+    <script>
+        $('#Truckchoice').on('change',function(){
+            $.ajax({
+                url: "/piechange",
+                type: "GET",
+                contentType: 'application/json;charset=UTF-8',
+                data: {
+                    'truck': document.getElementById('Truckchoice').value
+                },
+                dataType:"json",
+                success: function (data) {
+                    Plotly.newPlot('pieChart', data, barlayout);
+                }
+            });
+            $.ajax({
+                url: "/tablechange",
+                type: "GET",
+                contentType: 'application/json;charset=UTF-8',
+                data: {
+                    'truck': document.getElementById('Truckchoice').value
+                },
+                success: function (data) {
+                    $("#Transactionhist").html(data);
+                }
+            });
+        })
+        function download_csv(csv, filename) {
+		    var csvFile;
+		    var downloadLink;
+		    csvFile = new Blob([csv], {type: "text/csv"});
+		    downloadLink = document.createElement("a");
+		    downloadLink.download = filename;
+		    downloadLink.href = window.URL.createObjectURL(csvFile);
+		    downloadLink.style.display = "none";
+		    document.body.appendChild(downloadLink);
+		    downloadLink.click();
+		}
+		function export_table_to_csv(html, filename) {
+			var csv = [];
+			var rows = document.querySelectorAll("table tr");
+		    for (var i = 0; i < rows.length; i++) {
+				var row = [], cols = rows[i].querySelectorAll("td, th");
+		        for (var j = 0; j < cols.length; j++) 
+		            row.push(cols[j].innerText);
+				csv.push(row.join(","));		
+			}
+		    download_csv(csv.join("\n"), filename);
+		}
+		document.querySelector("button").addEventListener("click", function () {
+		    var html = document.querySelector("table").outerHTML;
+			export_table_to_csv(html, "habitData.csv");
+		});
+    </script>
+</div>
+</body>
+</html>
